@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+=======
+from flask import Flask, render_template
+>>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)  #__name__ specifies that the application will take on the same name as the file.
@@ -23,6 +27,7 @@ def index():
     return render_template('index.html', data=ToDo.query.all()
     )
 
+<<<<<<< HEAD
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
@@ -38,3 +43,7 @@ def create_todo():
 
 # if __name__ == '__main__':
 #     app.run()
+=======
+if __name__ == '__main__':
+    app.run()
+>>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and

@@ -10,12 +10,16 @@
         </style>
     </head>
     <body>
+<<<<<<< HEAD
         <form id="form">
             <input type="text" placeholder="description" name="description" id="description"/>
             <button type="submit" value="Create">Create</button>
         </form>
         <div id="error" class="hidden">Something went wrong!</div>
         <ul id="todos"> <!-- Now we're going to use the Jinja engine to generate <li>-->
+=======
+        <ul> <!-- Now we're going to use the Jinja engine to generate <li>-->
+>>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and
             {% for d in data %}
             <li>{{d.description}}</li>
             {% endfor %}
