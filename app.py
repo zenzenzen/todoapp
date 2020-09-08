@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)  #__name__ specifies that the application will take on the same name as the file.
@@ -23,5 +23,16 @@ def index():
     return render_template('index.html', data=ToDo.query.all()
     )
 
-if __name__ == '__main__':
-    app.run()
+
+@app.route('/todos/create', methods=['POST'])
+def create_todo():
+    newDescription = request.form.get('description', '')
+    newItem = ToDo(description=newDescription)
+    dbObject.session.add(newItem)       #ignore the red underline
+    dbObject.session.commit()
+
+    #you should redirect after finishing... instead of returning the home view
+    return redirect(url_for('index'))
+
+# if __name__ == '__main__':
+#     app.run()
