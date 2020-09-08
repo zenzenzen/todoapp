@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)  #__name__ specifies that the application will take on the same name as the file.
@@ -26,13 +26,15 @@ def index():
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
-    newDescription = request.form.get('description', '')
+    newDescription = request.get_json()['description']
     newItem = ToDo(description=newDescription)
     dbObject.session.add(newItem)       #ignore the red underline
     dbObject.session.commit()
 
     #you should redirect after finishing... instead of returning the home view
-    return redirect(url_for('index'))
+    return jsonify({
+        'description': newItem.description
+    })
 
 # if __name__ == '__main__':
 #     app.run()
