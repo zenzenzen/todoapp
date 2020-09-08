@@ -11,8 +11,8 @@
     </head>
     <body>
         <form id="form">
-            <input type="text" placeholder="description" name="description" id="description"/>
-            <button type="submit" value="Create">Create</button>
+            <input type="text" name="description" id="description"/>
+            <input type="submit" value="Create"/>
         </form>
         <div id="error" class="hidden">Something went wrong!</div>
         <ul id="todos"> <!-- Now we're going to use the Jinja engine to generate <li>-->
@@ -48,7 +48,7 @@
             })
             .catch(function(){
                 document.getElementById('error').className = '';
-            })
+            });
         </script>
     </body>
 </html>

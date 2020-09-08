@@ -30,7 +30,6 @@ def create_todo():
     newItem = ToDo(description=newDescription)
     dbObject.session.add(newItem)       #ignore the red underline
     dbObject.session.commit()
-
     #you should redirect after finishing... instead of returning the home view
     return jsonify({
         'description': newItem.description
