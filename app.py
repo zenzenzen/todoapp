@@ -22,7 +22,7 @@ dbObject.create_all()
 def create_todo():
     newDescription = request.get_json()['description']
     newItem = ToDo(description=newDescription)
-    dbObject.session.add(newItem)       #ignore the red underline
+    dbObject.session.add(newItem)       
     dbObject.session.commit()
     
     return jsonify({
