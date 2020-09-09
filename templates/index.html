@@ -10,7 +10,7 @@
         </style>
     </head>
     <body>
-        <form id="form">
+        <form id="form" method="post" action="/todos/create">
             <input type="text" name="description" id="description"/>
             <input type="submit" value="Create"/>
         </form>
@@ -21,8 +21,10 @@
             {% endfor %}
         </ul>
         <script>
-            document.getElementById('form').onsubmit = function(e){
+            const descInput = document.getElementById('description') // Need to get value in description
+            document.getElementById('form').onsubmit = function(e){  // Execute string operations on create
                 e.preventDefault();
+                const desc = descInput.value; // Make copy of description input; prevent malformed data
                 fetch('/todos/create',{
                     method: 'POST',
                     body: JSON.stringify({
@@ -36,18 +38,16 @@
 
             //fetch() is a promise-based library meaning that when it executes, it
             // creates a promise that something will be done later with the returned value
-            .then(function(response){
-                return response.json();
-            })
-            .then(function(jsonResponse){
-                console.log(jsonResponse);
-                const liItem = document.createElement('LI');
-                liItem.innerHTML = jsonResponse['description'];
+            .then(response => response.json()) // the response will return a value of jsonresponse
+            .then(jsonResponse => {
+                console.log('response', jsonResponse);  // print json response to log
+                liItem = document.createElement('li');
+                liItem.innerText = desc;                // Set the text = entered from the 'form'
                 document.getElementById('todos').appendChild(liItem);
-                document.getElementById('error').className = 'hidden'
+                document.getElementById('error').className = 'hidden' // Error warning stays hidden.
             })
             .catch(function(){
-                document.getElementById('error').className = '';
+                document.getElementById('error').className = '';      // Error warning is displayed
             });
         </script>
     </body>

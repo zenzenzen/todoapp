@@ -18,22 +18,22 @@ class ToDo(dbObject.Model):
 
 dbObject.create_all()
 
-@app.route('/')
-def index():
-    return render_template('index.html', data=ToDo.query.all()
-    )
-
-
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
     newDescription = request.get_json()['description']
     newItem = ToDo(description=newDescription)
     dbObject.session.add(newItem)       #ignore the red underline
     dbObject.session.commit()
-    #you should redirect after finishing... instead of returning the home view
+    
     return jsonify({
         'description': newItem.description
     })
+
+
+@app.route('/')
+def index():
+    return render_template('index.html', data=ToDo.query.all()
+    )
 
 # if __name__ == '__main__':
 #     app.run()
