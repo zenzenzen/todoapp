@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-=======
-from flask import Flask, render_template
->>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and
-=======
-from flask import Flask, render_template
->>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and
 from flask_sqlalchemy import SQLAlchemy
+import sys
 
 app = Flask(__name__)  #__name__ specifies that the application will take on the same name as the file.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost:5432/todoapp'
@@ -26,13 +19,28 @@ class ToDo(dbObject.Model):
 
 dbObject.create_all()
 
+@app.route('/todos/create', methods=['POST'])
+def create_todo():
+    try:
+        newDescription = request.get_json()['description']
+        newItem = ToDo(description=newDescription)
+        dbObject.session.add(newItem)       
+        dbObject.session.commit()    
+    except:
+        dbObject.session.rollback()
+        print(sys.exc_info())
+    finally:
+        dbObject.session.close()
+    if not error:
+        return jsonify({
+            'description': newItem.description
+        })
+    
+
 @app.route('/')
 def index():
     return render_template('index.html', data=ToDo.query.all()
     )
-
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
@@ -48,11 +56,3 @@ def create_todo():
 
 # if __name__ == '__main__':
 #     app.run()
-=======
-if __name__ == '__main__':
-    app.run()
->>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and
-=======
-if __name__ == '__main__':
-    app.run()
->>>>>>> parent of 975d98b... Added html forms and get methods on the controller so that new data can be added from the site and
