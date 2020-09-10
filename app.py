@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import migrate
 import sys
 
 app = Flask(__name__)  #__name__ specifies that the application will take on the same name as the file.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres@localhost:5432/todoapp'
 dbObject = SQLAlchemy(app) # Call in a db object that we can use to perform CRUD operations.
 
+migrate = (Migrate, dbObject)
 
 
 class ToDo(dbObject.Model):
@@ -21,21 +23,29 @@ dbObject.create_all()
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
+    error = False
+    body = {}
     try:
         newDescription = request.get_json()['description']
         newItem = ToDo(description=newDescription)
         dbObject.session.add(newItem)       
         dbObject.session.commit()    
+        body['description'] = newItem.description   #  Circumvent expire_on_commit issues
+                                                    # by maintaining desc data after commit
+                                                    # to actively update page w/o refresh
+                                                    # and prevent accessing stale object after
+                                                    # the commit.
     except:
+        error = True
         dbObject.session.rollback()
         print(sys.exc_info())
+        
     finally:
         dbObject.session.close()
     if not error:
-        return jsonify({
-            'description': newItem.description
-        })
-    
+        return jsonify(body)
+    if error:
+        abort(500)
 
 @app.route('/')
 def index():
