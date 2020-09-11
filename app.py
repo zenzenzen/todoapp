@@ -14,7 +14,7 @@ class ToDo(dbObject.Model):
     __tablename__ = 'todos'
     id = dbObject.Column(dbObject.Integer, primary_key=True)
     description = dbObject.Column(dbObject.String(), nullable=False)
-    completed = dbObject.Column(dbObject.Boolean, nullable=False, default = False)
+    completed = dbObject.Column(dbObject.Boolean, nullable=False, default=False)
     # completed = dbObjectColumn(dbObjectBoolean, nullable=True)
 
     def __repr__(self): #built-in reprint method for debugging
@@ -28,7 +28,7 @@ def create_todo():
     body = {}
     try:
         newDescription = request.get_json()['description']
-        newItem = ToDo(description=newDescription)
+        newItem = ToDo(description=newDescription, completed=False)
         dbObject.session.add(newItem)       
         dbObject.session.commit()    
         body['description'] = newItem.description   #  Circumvent expire_on_commit issues
@@ -43,10 +43,10 @@ def create_todo():
         
     finally:
         dbObject.session.close()
-    if not error:
-        return jsonify(body)
     if error:
         abort(500)
+    else:
+        return jsonify(body)
 
 @app.route('/')
 def index():

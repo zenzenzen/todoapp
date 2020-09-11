@@ -7,6 +7,12 @@
             .hidden{
                 display: none;
             }
+
+            ul{
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
         </style>
     </head>
     <body>
@@ -17,10 +23,27 @@
         <div id="error" class="hidden">Something went wrong!</div>
         <ul id="todos"> <!-- Now we're going to use the Jinja engine to generate <li>-->
             {% for d in data %}
-            <li>{{d.description}}</li>
+            <li><input class="check-completed" type="checkbox" {% if d.completed %} checked {% endif %}/>{{d.description}}</li>
             {% endfor %}
         </ul>
         <script>
+                    //this block grabs all html nodes with class check-completed and returns the value in an array
+            const checkboxes = document.querySelectorAll('.check-completed');
+            for (let i = 0; i < checkboxes.length; i++){
+                const checkbox = checkboxes[i]; // checkboxes is returned as an array of values
+                                                // hence why you can subscript through
+                checkboxes.onchange = e => console.log('event', e);
+                const newCompleted = e.target.checked;
+                fetch('todos/set-completed',{
+                    method: 'POST',
+                    body:   JSON.stringify({
+                        'completed': newCompleted
+                    }),// Inner JSON object to determine check-state
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })//JSON request to determine method
+            }
             const descInput = document.getElementById('description') // Need to get value in description
             document.getElementById('form').onsubmit = function(e){  // Execute string operations on create
                 e.preventDefault();
