@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, abort, jsonify
+from flask import Flask, render_template, request, abort, jsonify, redirect, url_for, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import sys
@@ -18,7 +18,7 @@ class ToDo(dbObject.Model):
     # completed = dbObjectColumn(dbObjectBoolean, nullable=True)
 
     def __repr__(self): #built-in reprint method for debugging
-        return f'<Todo {self.id} {self.description}'
+        return f'<Todo {self.id} {self.description} {self.completed}'
 
 # dbObject.create_all()   --> No longer required because we're using Flask-Migrate now.
 
@@ -45,12 +45,39 @@ def create_todo():
         dbObject.session.close()
     if error:
         abort(500)
+        print(sys.exc_info())
     else:
         return jsonify(body)
 
+@app.route('/todos/<todo_id>/set-completed', methods=['PATCH'])
+def set_completed_todo(todo_id):
+    try:
+        completedTask = request.get_json()['completed']
+        print('completed', completedTask)
+        todoItem = ToDo.query.filter_by(id=todo_id).all()
+        todoItem.completed=True
+        dbObject.session.commit()
+    except:
+        dbObject.session.rollback()
+    finally:
+        dbObject.session.close()
+    return redirect(url_for('index'))
+
+@app.route('/todos/<todo_id>/delete', methods=['DELETE'])
+def delete_todo(todo_id):
+    # validDelete = make_response(jsonify({}), 204)
+    try:
+        Todo.query.filter_by(ToDo.id == todo_id).delete()
+        dbObject.session.commit()
+    except:
+        dbObject.session.rollback()
+    finally:
+        dbObject.session.close()
+    return redirect(url_for('index'))
+
 @app.route('/')
 def index():
-    return render_template('index.html', data=ToDo.query.all()
+    return render_template('index.html', data=ToDo.query.order_by('id').all()
     )
 
 # if __name__ == '__main__':

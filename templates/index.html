@@ -7,11 +7,31 @@
             .hidden{
                 display: none;
             }
-
+            .deletion{
+                -webkit-appearance: none;
+                border: none;
+                outline: none;
+                color: red;
+                cursor: pointer;
+                font-size: 20px;
+                transition-duration: 0.3s;
+                float: right;
+            }
+            .deletion:hover{
+                background-color: #f44336;
+                color: white;
+            }
             ul{
+                display: flex;
+                flex-flow: column;
+                width: 40%;
                 list-style: none;
                 padding: 0;
                 margin: 0;
+            }
+            li{
+                display: inline-block, -moz-inline-stack;
+                padding: 2em 0 2em 0;
             }
         </style>
     </head>
@@ -20,10 +40,11 @@
             <input type="text" name="description" id="description"/>
             <input type="submit" value="Create"/>
         </form>
+        <br>
         <div id="error" class="hidden">Something went wrong!</div>
         <ul id="todos"> <!-- Now we're going to use the Jinja engine to generate <li>-->
             {% for d in data %}
-            <li><input class="check-completed" type="checkbox" {% if d.completed %} checked {% endif %}/>{{d.description}}</li>
+            <li><input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %}/>{{d.description}}</li><button id="{{ d.id }}" onclick="deleteThis(id)" class="deletion" data-id="{{ d.id }}">&cross;</button>
             {% endfor %}
         </ul>
         <script>
@@ -32,18 +53,27 @@
             for (let i = 0; i < checkboxes.length; i++){
                 const checkbox = checkboxes[i]; // checkboxes is returned as an array of values
                                                 // hence why you can subscript through
-                checkboxes.onchange = e => console.log('event', e);
-                const newCompleted = e.target.checked;
-                fetch('todos/set-completed',{
-                    method: 'POST',
-                    body:   JSON.stringify({
-                        'completed': newCompleted
-                    }),// Inner JSON object to determine check-state
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })//JSON request to determine method
-            }
+                checkboxes.onchange = function(e){
+                    const newCompleted = e.target.checked;  // Use dom to retrieve T/F value from jinja retrieval
+                    const todoId = e.target.dataset['id'];  // Use dom to retrieve target id from jinja retrieval
+                    fetch('/todos/' + todoId + '/set-completed',{
+                        method: 'PATCH',
+                        body:   JSON.stringify({
+                            'completed': newCompleted
+                        }),// Inner JSON object to determine check-state
+                        headers: {
+                            'Content-Type': 'application/json'
+                            }
+                        })//JSON request to determine method
+                    .then(function(){
+                        document.getElementById('error').className = 'hidden';
+                    })// end-then
+                    .catch(function(){
+                        document.getElementById('error').className = '';     
+                    })// end-catch
+                }//End task completed update scope
+                
+            }// END-FORLOOP
             const descInput = document.getElementById('description') // Need to get value in description
             document.getElementById('form').onsubmit = function(e){  // Execute string operations on create
                 e.preventDefault();
@@ -51,7 +81,8 @@
                 fetch('/todos/create', {
                     method: 'POST',
                     body: JSON.stringify({
-                        'description': desc
+                        'description': desc,
+                        'completed': false
                     }),
                     headers: {
                         'Content-Type': 'application/json'
@@ -64,14 +95,42 @@
                 .then(jsonResponse => {
                     console.log('response', jsonResponse);  // print json response to log
                     liItem = document.createElement('li');
-                    liItem.innerText = desc;                // Set the text = entered from the 'form'
+                    cbox = document.createElement('INPUT');
+                    cbox.setAttribute("type","checkbox");
+                    liItem.appendChild(cbox);
+                    liItem.innerText = desc;               // Set the text = entered from the 'form'
+                    // newCheck = document.createElement('input');
+                    // newCheck.type = checkbox;
+                    // newCheck.className = "check-completed";
+                    // document.body.form.insertBefore(newCheck, liItem);
                     document.getElementById('todos').appendChild(liItem);
-                    document.getElementById('error').className = 'hidden' // Error warning stays hidden.
+                    document.getElementById('error').className = 'hidden'; // Error warning stays hidden.
                 })
                 .catch(function(){
                     document.getElementById('error').className = '';      // Error warning is displayed
                 });
-            } // end function(e) scope
+            } // end submit new task scope
+            function deleteThis(id){
+                const deleteInfo = id;
+                fetch('/todos/' + deleteInfo + '/delete', {             
+                    method: 'DELETE',
+                    body: JSON.stringify({
+                        'id': deleteInfo 
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }//headers
+                })//fetch
+                // .then(response => response.json())
+                // .then(jsonResponse =>{
+                //     console.log('response', jsonResponse);
+                //     alert("Successful task deletion!");
+                //     document.getElementById('error').className = 'hidden';
+                // })
+            }//end-delete-event-listener
+            
+            
+            
         </script>
     </body>
 </html>
