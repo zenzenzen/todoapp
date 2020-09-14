@@ -2,8 +2,10 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Working To-Do App</title>
+        <title>Another To-Do App</title>
+        <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet"> 
         <style>
+            /* CLASS & ID DEFINED STYLES*/
             .hidden{
                 display: none;
             }
@@ -12,43 +14,86 @@
                 border: none;
                 outline: none;
                 color: red;
+                background-color: white;
                 cursor: pointer;
                 font-size: 20px;
                 transition-duration: 0.3s;
                 float: right;
+                height: 1.618em;
+                width: 2em;
             }
             .deletion:hover{
                 background-color: #f44336;
                 color: white;
             }
+            #tasklist-wrapper{
+                margin: 2% auto 0% 37%;
+            }
+            /* HTML TAG STYLES*/
+            body{
+                font-family: 'Kumbh Sans', sans-serif;
+            }
+            form{
+                width: 40%;
+            }
             ul{
                 display: flex;
-                flex-flow: column;
+                flex-direction: column;
                 width: 40%;
                 list-style: none;
                 padding: 0;
                 margin: 0;
             }
             li{
-                display: inline-block, -moz-inline-stack;
-                padding: 2em 0 2em 0;
+                display: inline-block;
+                margin-bottom: 1em;
+                padding: .5em 0 0 0;
+                /* border-top: 1px solid lightgray;
+                border-bottom: 1px solid lightgray; */
             }
+            li button{
+                height: 100%;
+            }
+
+
         </style>
     </head>
     <body>
-        <form id="form" method="post" action="/todos/create">
-            <input type="text" name="description" id="description"/>
-            <input type="submit" value="Create"/>
-        </form>
-        <br>
-        <div id="error" class="hidden">Something went wrong!</div>
-        <ul id="todos"> <!-- Now we're going to use the Jinja engine to generate <li>-->
-            {% for d in data %}
-            <li><input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %}/>{{d.description}}</li><button id="{{ d.id }}" onclick="deleteThis(id)" class="deletion" data-id="{{ d.id }}">&cross;</button>
-            {% endfor %}
-        </ul>
+        <div id="tasklist-wrapper">
+            <h1>Let's get it done!</h1>
+            <form id="form" method="post" action="/todos/create">
+                <input type="text" name="description" id="description" style="width: 70%;" placeholder="What do you want to get done?"/>
+                <input type="submit" value="Create"/>
+            </form>
+            <br>
+            <div id="error" class="hidden">Something went wrong!</div>
+            <ul id="todos"> <!-- Now we're going to use the Jinja engine to generate <li>-->
+                {% for d in data %}
+                <li><input class="check-completed" data-id="{{ d.id }}" type="checkbox" {% if d.completed %} checked {% endif %}/>  
+                    {{d.description}} 
+                    <button class="deletion" data-id="{{ d.id }}">&cross;</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
         <script>
-                    //this block grabs all html nodes with class check-completed and returns the value in an array
+
+            const deleteBtns = document.querySelectorAll('.deletion');
+                    for (let i = 0; i < deleteBtns.length; i++) {
+                        const btn = deleteBtns[i];
+                        btn.onclick = function(e) {
+                            const todoId = e.target.dataset['id'];
+                            fetch('/todos/' + todoId, {
+                                method: 'DELETE'
+                            })
+                            .then(function(){
+                                const thisItem = e.target.parentElement;
+                                thisItem.remove();
+                            })
+                        }//onclick-function(e)-end
+                    }//end-for
+           
             const checkboxes = document.querySelectorAll('.check-completed');
             for (let i = 0; i < checkboxes.length; i++){
                 const checkbox = checkboxes[i]; // checkboxes is returned as an array of values
@@ -57,7 +102,7 @@
                     const newCompleted = e.target.checked;  // Use dom to retrieve T/F value from jinja retrieval
                     const todoId = e.target.dataset['id'];  // Use dom to retrieve target id from jinja retrieval
                     fetch('/todos/' + todoId + '/set-completed',{
-                        method: 'PATCH',
+                        method: 'POST',
                         body:   JSON.stringify({
                             'completed': newCompleted
                         }),// Inner JSON object to determine check-state
@@ -72,7 +117,6 @@
                         document.getElementById('error').className = '';     
                     })// end-catch
                 }//End task completed update scope
-                
             }// END-FORLOOP
             const descInput = document.getElementById('description') // Need to get value in description
             document.getElementById('form').onsubmit = function(e){  // Execute string operations on create
@@ -110,27 +154,6 @@
                     document.getElementById('error').className = '';      // Error warning is displayed
                 });
             } // end submit new task scope
-            function deleteThis(id){
-                const deleteInfo = id;
-                fetch('/todos/' + deleteInfo + '/delete', {             
-                    method: 'DELETE',
-                    body: JSON.stringify({
-                        'id': deleteInfo 
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }//headers
-                })//fetch
-                // .then(response => response.json())
-                // .then(jsonResponse =>{
-                //     console.log('response', jsonResponse);
-                //     alert("Successful task deletion!");
-                //     document.getElementById('error').className = 'hidden';
-                // })
-            }//end-delete-event-listener
-            
-            
-            
         </script>
     </body>
 </html>
