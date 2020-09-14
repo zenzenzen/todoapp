@@ -11,16 +11,18 @@
             }
             .deletion{
                 -webkit-appearance: none;
-                border: none;
-                outline: none;
-                color: red;
+                border:             none;
+                outline:            none;
+                color:            red;
                 background-color: white;
-                cursor: pointer;
-                font-size: 20px;
+                cursor:             pointer;
+                font-size:          20px;
                 transition-duration: 0.3s;
-                float: right;
-                height: 1.618em;
-                width: 2em;
+                float:              right;
+                /* height: 1.618em;
+                width: 2em; */
+                padding-top:        .5em;
+                text-align:         center;
             }
             .deletion:hover{
                 background-color: #f44336;
@@ -31,28 +33,27 @@
             }
             /* HTML TAG STYLES*/
             body{
-                font-family: 'Kumbh Sans', sans-serif;
+                font-family:    'Kumbh Sans', sans-serif;
             }
             form{
                 width: 40%;
             }
             ul{
-                display: flex;
+                display:        flex;
                 flex-direction: column;
-                width: 40%;
-                list-style: none;
-                padding: 0;
-                margin: 0;
+                width:          40%;
+                list-style:     none;
+                padding:        0;
+                margin:         0;
             }
             li{
-                display: inline-block;
-                margin-bottom: 1em;
-                padding: .5em 0 0 0;
-                /* border-top: 1px solid lightgray;
-                border-bottom: 1px solid lightgray; */
+                display:            flex;
+                justify-content:    space-between;
+                margin-bottom:      1em;
+                align-items:        baseline;
             }
             li button{
-                height: 100%;
+                height:             100%;
             }
 
 
@@ -95,29 +96,29 @@
                     }//end-for
            
             const checkboxes = document.querySelectorAll('.check-completed');
-            for (let i = 0; i < checkboxes.length; i++){
-                const checkbox = checkboxes[i]; // checkboxes is returned as an array of values
-                                                // hence why you can subscript through
-                checkboxes.onchange = function(e){
-                    const newCompleted = e.target.checked;  // Use dom to retrieve T/F value from jinja retrieval
-                    const todoId = e.target.dataset['id'];  // Use dom to retrieve target id from jinja retrieval
-                    fetch('/todos/' + todoId + '/set-completed',{
-                        method: 'POST',
-                        body:   JSON.stringify({
+                for (let i = 0; i < checkboxes.length; i++) {
+                    const checkbox = checkboxes[i];
+                    checkbox.onchange = function(e) {
+                        const newCompleted = e.target.checked;
+                        const todoId = e.target.dataset['id'];
+                        fetch('/todos/' + todoId + '/set-completed', {
+                            method: 'POST',
+                            body: JSON.stringify({
                             'completed': newCompleted
-                        }),// Inner JSON object to determine check-state
-                        headers: {
+                            }),
+                            headers: {
                             'Content-Type': 'application/json'
                             }
-                        })//JSON request to determine method
-                    .then(function(){
-                        document.getElementById('error').className = 'hidden';
-                    })// end-then
-                    .catch(function(){
-                        document.getElementById('error').className = '';     
-                    })// end-catch
-                }//End task completed update scope
-            }// END-FORLOOP
+                        })//end-fetch
+                        .then(function() {
+                            document.getElementById('error').className = 'hidden';
+                        })
+                        .catch(function() {
+                            document.getElementById('error').className = '';
+                        })
+                    }//end-function(e)-declaration
+                }//end-for-loop-checkboxes
+
             const descInput = document.getElementById('description') // Need to get value in description
             document.getElementById('form').onsubmit = function(e){  // Execute string operations on create
                 e.preventDefault();
