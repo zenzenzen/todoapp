@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, abort, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import ForeignKey
 from flask_migrate import Migrate
 import sys
 
@@ -10,16 +11,23 @@ dbObject = SQLAlchemy(app) # Call in a db object that we can use to perform CRUD
 
 migrate = Migrate(app, dbObject)
 
+class ToDoList(dbObject.Model):
+    __tablename__ = 'todolists'
+    id = dbObject.Column(dbObject.Integer, primary_key=True)
+    listName = dbObject.Column(dbObject.String(), nullable=False)
+    todos = dbObject.relationship('ToDo', backref='lists', lazy=True)
 
 class ToDo(dbObject.Model):
     __tablename__ = 'todos'
     id = dbObject.Column(dbObject.Integer, primary_key=True)
     description = dbObject.Column(dbObject.String(), nullable=False)
     completed = dbObject.Column(dbObject.Boolean, nullable=False)
-    # completed = dbObjectColumn(dbObjectBoolean, nullable=True)
+    listID = dbObject.Column(dbObject.Integer, dbObject.ForeignKey('todolists.id'))
 
     def __repr__(self): #built-in reprint method for debugging
         return f'<Todo {self.id} {self.description} {self.completed}'
+
+
 
 # dbObject.create_all()   --> No longer required because we're using Flask-Migrate now.
 
@@ -77,10 +85,11 @@ def delete_todo(todo_id):
         dbObject.session.close()
         return jsonify({'success':True})
 
-@app.route('/')
-def index():
-    return render_template('index.html', data=ToDo.query.order_by('id').all()
-    )
+@app.route('/lists/<list_id>')
+def index(list_id):
+    return render_template('index.html', 
+    data=ToDo.query.filter_by(list_id=ListID).order_by('id')
+    .all()
 
 # if __name__ == '__main__':
 #     app.run()
