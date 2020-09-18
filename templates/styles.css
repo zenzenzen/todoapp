@@ -1,9 +1,50 @@
-.hidden{
+ /* CLASS & ID DEFINED STYLES*/
+ .hidden{
     display: none;
 }
-
+.deletion{
+    -webkit-appearance: none;
+    border:             none;
+    outline:            none;
+    color:            red;
+    background-color: white;
+    cursor:             pointer;
+    font-size:          20px;
+    transition-duration: 0.3s;
+    float:              right;
+    /* height: 1.618em;
+    width: 2em; */
+    padding-top:        .5em;
+    text-align:         center;
+}
+.deletion:hover{
+    background-color: #f44336;
+    color: white;
+}
+#tasklist-wrapper{
+    margin: 2% auto 0% 37%;
+}
+/* HTML TAG STYLES*/
+body{
+    font-family:    'Kumbh Sans', sans-serif;
+}
+form{
+    width: 40%;
+}
 ul{
-    list-style: none;
-    padding: 0;
-    margin: 0;
+    display:        flex;
+    flex-direction: column;
+    width:          40%;
+    list-style:     none;
+    padding:        0;
+    margin:         0;
+}
+li{
+    display:            flex;
+    justify-content:    space-between;
+    margin-bottom:      1em;
+    align-items:        baseline;
+}
+li button{
+    height:             100%;
 }
